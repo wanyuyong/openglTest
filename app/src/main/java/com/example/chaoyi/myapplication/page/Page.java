@@ -26,7 +26,6 @@ public class Page {
     private float width;
     private float height;
 
-    private boolean onlyDrawLine = true;
     private float R = .5f;
 
     private float centralPointX = 0f, centralPointY = 0f, centralPointZ = 0f; //纸张的中心点坐标
@@ -40,7 +39,6 @@ public class Page {
     private FloatBuffer vertexBufferTop; //上部纸面顶点
     private FloatBuffer vertexBufferPathTop; //上曲线顶点
     private FloatBuffer vertexBufferPathBottom; //下曲线顶点
-    private FloatBuffer vertexBufferTexture; //纹理顶点
 
     private float perDegrees;  //曲面被切割的每一小份的角度
     private int vertexNum; //曲面切割的点个数
@@ -167,22 +165,21 @@ public class Page {
     }
 
     /**
-     *
      * 获取贝赛尔曲线的点集合
      *
-     * @param startX 起始点坐标
+     * @param startX        起始点坐标
      * @param startY
      * @param controlPointX 控制点坐标
      * @param controlPointY
-     * @param endX 结束点坐标
+     * @param endX          结束点坐标
      * @param endY
-     * @param vertexNum 曲线被分割的点数
+     * @param vertexNum     曲线被分割的点数
      * @return
      */
     private FloatBuffer getBezierPath(float startX, float startY,
                                       float controlPointX, float controlPointY,
                                       float endX, float endY,
-                                      float vertexNum){
+                                      float vertexNum) {
 
         Path path = new Path();
         path.moveTo(startX, startY);
@@ -198,11 +195,15 @@ public class Page {
             float distance = len / (vertexNum - 1) * i;
             pathMeasure.getPosTan(distance, pos, tan);
 
+            /**
+             * 根据弧面半径和弧度计算去z坐标值
+             */
+            float sin = (float) Math.sin(perDegrees * i / 2 * Math.PI / 180);
+            float z = sin * 2 * R * sin;
+
             arrayList.add(pos[0]);
             arrayList.add(pos[1]);
-            arrayList.add(2 * R / (vertexNum - 1) * i);
-
-            Log.v("magic", "x = " + pos[0] + ", y = " + pos[1]);
+            arrayList.add(z);
         }
 
         FloatBuffer vertexBuffer = Util.getFloatBuffer(arrayList);
@@ -216,25 +217,22 @@ public class Page {
         gl.glRotatef(angleY, 0, 1, 0);
         gl.glRotatef(angleZ, 0, 0, 1);
 
-        if (onlyDrawLine) {
-            // 启用顶点座标数据
-            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferBottom);//指定顶点缓冲
-            gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 5);
+        // 启用顶点座标数据
+        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferBottom);//指定顶点缓冲
+        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 5);
 
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferTop);//指定顶点缓冲
-            gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 3);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferTop);//指定顶点缓冲
+        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 3);
 
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathBottom);//指定顶点缓冲
-            gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathBottom);//指定顶点缓冲
+        gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
 
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathTop);//指定顶点缓冲
-            gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathTop);//指定顶点缓冲
+        gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
 
-            gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-        } else {
+        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
-        }
     }
 
     public void setAngle(float angleX, float angleY, float angleZ) {
