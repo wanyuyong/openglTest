@@ -16,7 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".cylinder.CylinderActivity"></activity>
+        <activity android:name=".cylinder.CylinderActivity" />
+        <activity android:name=".page.PageActivity"></activity>
     </application>
 
 </manifest>

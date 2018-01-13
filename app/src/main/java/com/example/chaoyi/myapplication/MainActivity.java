@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.chaoyi.myapplication.cylinder.CylinderActivity;
+import com.example.chaoyi.myapplication.page.PageActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -15,7 +16,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.cylinder_btn).setOnClickListener(this);
-
+        findViewById(R.id.page_btn).setOnClickListener(this);
 
     }
 
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.cylinder_btn:
                 startActivity(new Intent(getApplicationContext(), CylinderActivity.class));
+                break;
+            case R.id.page_btn:
+                startActivity(new Intent(getApplicationContext(), PageActivity.class));
                 break;
         }
     }

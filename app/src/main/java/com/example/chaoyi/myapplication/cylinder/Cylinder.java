@@ -1,13 +1,11 @@
 package com.example.chaoyi.myapplication.cylinder;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLUtils;
-import android.util.Log;
 
-import com.example.chaoyi.myapplication.R;
+import com.example.chaoyi.myapplication.utility.Util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -113,20 +111,7 @@ public class Cylinder {
             vertexArray.add((float) (z + R * Math.sin(degrees * Math.PI / 180)));
         }
 
-        int arraySize = vertexArray.size();
-
-        //顶点
-        float[] vertexs = new float[arraySize];
-        for (int i = 0; i < arraySize; i++) {
-            vertexs[i] = vertexArray.get(i);
-        }
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(arraySize * 4);
-        byteBuffer.order(ByteOrder.nativeOrder());
-        FloatBuffer vertexBuffer = byteBuffer.asFloatBuffer();
-        vertexBuffer.put(vertexs);
-        vertexBuffer.position(0);
-
-        return vertexBuffer;
+        return Util.getFloatBuffer(vertexArray);
     }
 
     private void loadTexture(GL10 gl) {
