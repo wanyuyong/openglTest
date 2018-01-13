@@ -1,14 +1,13 @@
-package com.example.chaoyi.myapplication.page;
+package com.example.chaoyi.myapplication.pagetexture;
 
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.util.Log;
 
+import com.example.chaoyi.myapplication.page.Page;
 import com.example.chaoyi.myapplication.utility.Util;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
@@ -18,7 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by chaoyi on 2018/1/12.
  */
 
-public class Page {
+public class PageTexture {
 
     /**
      * 纸页的宽高
@@ -35,17 +34,15 @@ public class Page {
     private float angleY;
     private float angleZ;
 
-    private FloatBuffer vertexBufferBottom; //底部纸面顶点
-    private FloatBuffer vertexBufferTop; //上部纸面顶点
-    private FloatBuffer vertexBufferPathTop; //上曲线顶点
-    private FloatBuffer vertexBufferPathBottom; //下曲线顶点
+    private FloatBuffer vertexBuffer;
+    private FloatBuffer vertexTextureBuffer;
 
     private float perDegrees;  //曲面被切割的每一小份的角度
     private int vertexNum; //曲面切割的点个数
 
     private Context context;
 
-    public Page(float width, float height, float perDegrees, Context context) {
+    public PageTexture(float width, float height, float perDegrees, Context context) {
         this.width = width;
         this.height = height;
         this.context = context;
@@ -125,6 +122,10 @@ public class Page {
         arrayList.add(centralPointY + height / 2f);
         arrayList.add(0f);
 
+        arrayList.add(centralPointX - width / 2f);
+        arrayList.add(centralPointY - height / 2f);
+        arrayList.add(0f);
+
         arrayList.add(Jx);
         arrayList.add(Jy);
         arrayList.add(0f);
@@ -133,66 +134,54 @@ public class Page {
         arrayList.add(Cy);
         arrayList.add(0f);
 
-        arrayList.add(centralPointX - width / 2f);
-        arrayList.add(centralPointY - height / 2f);
-        arrayList.add(0f);
-
-        this.vertexBufferBottom = Util.getFloatBuffer(arrayList);
-        arrayList.clear();
+        Path path1 = getBezierPath(Jx, Jy, Hx, Hy, Kx, Ky);
+        Path path2 = getBezierPath(Cx, Cy, Ex, Ey, Bx, By);
+        arrayList.addAll(getCurvedVertex(path1, path2, vertexNum));
 
         /**
-         * 计算上部纸张的3个点
+         *  最后加上（thumbX， thumbY）点
          */
         arrayList.add(thumbX);
         arrayList.add(thumbY);
         arrayList.add(2 * R + centralPointZ);
 
-        arrayList.add(Bx);
-        arrayList.add(By);
-        arrayList.add(2 * R + centralPointZ);
-
-        arrayList.add(Kx);
-        arrayList.add(Ky);
-        arrayList.add(2 * R + centralPointZ);
-
-        this.vertexBufferTop = Util.getFloatBuffer(arrayList);
-        arrayList.clear();
-
-        this.vertexBufferPathBottom = getBezierPath(Cx, Cy, Ex, Ey, Bx, By, this.vertexNum);
-        this.vertexBufferPathTop = getBezierPath(Jx, Jy, Hx, Hy, Kx, Ky, this.vertexNum);
+        this.vertexBuffer = Util.getFloatBuffer(arrayList);
 
     }
 
-    /**
-     * 获取贝赛尔曲线的点集合
-     *
-     * @param startX        起始点坐标
-     * @param startY
-     * @param controlPointX 控制点坐标
-     * @param controlPointY
-     * @param endX          结束点坐标
-     * @param endY
-     * @param vertexNum     曲线被分割的点数
-     * @return
-     */
-    private FloatBuffer getBezierPath(float startX, float startY,
-                                      float controlPointX, float controlPointY,
-                                      float endX, float endY,
-                                      float vertexNum) {
-
+    private Path getBezierPath(float startX, float startY,
+                               float controlPointX, float controlPointY,
+                               float endX, float endY){
         Path path = new Path();
         path.moveTo(startX, startY);
         path.quadTo(controlPointX, controlPointY, endX, endY);
-        PathMeasure pathMeasure = new PathMeasure(path, false);
-        float len = pathMeasure.getLength();
+
+        return path;
+    }
+
+    /**
+     * 获取曲面顶点集合
+     * @param path1  上曲线
+     * @param path2  下曲线
+     * @param vertexNum 曲线被分割的点数
+     * @return
+     */
+    private ArrayList<Float> getCurvedVertex(Path path1, Path path2, float vertexNum) {
+
+        PathMeasure pathMeasure1 = new PathMeasure(path1, false);
+        float len1 = pathMeasure1.getLength();
+
+        PathMeasure pathMeasure2 = new PathMeasure(path2, false);
+        float len2 = pathMeasure2.getLength();
 
         ArrayList<Float> arrayList = new ArrayList<>();
         for (int i = 0; i < vertexNum; i++) {
+            // patch1 上的点
             float[] pos = new float[2];
             float[] tan = new float[2];
 
-            float distance = len / (vertexNum - 1) * i;
-            pathMeasure.getPosTan(distance, pos, tan);
+            float distance = len1 / (vertexNum - 1) * i;
+            pathMeasure1.getPosTan(distance, pos, tan);
 
             /**
              * 根据弧面半径和弧度计算去z坐标值
@@ -203,11 +192,26 @@ public class Page {
             arrayList.add(pos[0]);
             arrayList.add(pos[1]);
             arrayList.add(z);
+
+            // patch2 上的点
+            pos = new float[2];
+            tan = new float[2];
+
+            distance = len2 / (vertexNum - 1) * i;
+            pathMeasure2.getPosTan(distance, pos, tan);
+
+            /**
+             * 根据弧面半径和弧度计算去z坐标值
+             */
+            sin = (float) Math.sin(perDegrees * i / 2 * Math.PI / 180);
+            z = sin * 2 * R * sin;
+
+            arrayList.add(pos[0]);
+            arrayList.add(pos[1]);
+            arrayList.add(z);
         }
 
-        FloatBuffer vertexBuffer = Util.getFloatBuffer(arrayList);
-
-        return vertexBuffer;
+        return arrayList;
     }
 
 
@@ -218,21 +222,15 @@ public class Page {
 
         // 启用顶点座标数据
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferBottom);//指定顶点缓冲
-        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 5);
 
-        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferTop);//指定顶点缓冲
-        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 3);
-
-        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathBottom);//指定顶点缓冲
-        gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
-
-        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBufferPathTop);//指定顶点缓冲
-        gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, this.vertexNum);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, this.vertexBuffer);//指定顶点缓冲
+        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 5 + this.vertexNum * 2 + 1);
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
     }
+
+    
 
     public void setAngle(float angleX, float angleY, float angleZ) {
         this.angleX = angleX;

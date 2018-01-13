@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.example.chaoyi.myapplication.cylinder.CylinderActivity;
 import com.example.chaoyi.myapplication.page.PageActivity;
+import com.example.chaoyi.myapplication.pagetexture.PageTextureActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -16,7 +17,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.cylinder_btn).setOnClickListener(this);
-        findViewById(R.id.page_btn).setOnClickListener(this);
+        findViewById(R.id.page_btn_1).setOnClickListener(this);
+        findViewById(R.id.page_btn_2).setOnClickListener(this);
 
     }
 
@@ -26,8 +28,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.cylinder_btn:
                 startActivity(new Intent(getApplicationContext(), CylinderActivity.class));
                 break;
-            case R.id.page_btn:
+            case R.id.page_btn_1:
                 startActivity(new Intent(getApplicationContext(), PageActivity.class));
+                break;
+            case R.id.page_btn_2:
+                startActivity(new Intent(getApplicationContext(), PageTextureActivity.class));
                 break;
         }
     }
