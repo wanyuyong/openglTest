@@ -67,6 +67,8 @@ public class Page {
     private void calculatePageVertex(float thumbX, float thumbY) {
 
         float Ax = thumbX, Ay = thumbY;
+        float Ox = width / 2f, Oy = height / 2f;
+        float Px = -width / 2f, Py = -height / 2f;
         float Fx = width / 2f, Fy = -height / 2f;
         float Gx = (Ax + Fx) / 2f, Gy = (Ay + Fy) / 2f;
         float Mx = Gx, My = Fy;
@@ -82,8 +84,22 @@ public class Page {
         float FG = (float) Math.abs(Math.sqrt(Math.pow(Fx - Gx, 2) + Math.pow(Fy - Gy, 2)));
         float CF = FN * EF / FG;
         float Cx = Fx - CF, Cy = Fy;
+
+        /**
+         * C点坐标有可能越界
+         */
+        if (Cx < Px) {
+            Cx = Px;
+        }
+
         float FJ = FH * CF / EF;
         float Jx = Fx, Jy = Fy + FJ;
+        /**
+         * J点坐标有可能越界
+         */
+        if (Jy > Oy) {
+            Jy = Oy;
+        }
 
         /**
          * 直线公式 y = kx + b

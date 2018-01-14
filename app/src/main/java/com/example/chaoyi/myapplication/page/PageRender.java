@@ -34,7 +34,7 @@ public class PageRender implements GLSurfaceView.Renderer {
         // 启用2D纹理贴图
         gl.glEnable(GL10.GL_TEXTURE_2D);
 
-        this.page = new Page(8, 10, 18, context);
+        this.page = new Page(14, 18, 18, context);
     }
 
     @Override

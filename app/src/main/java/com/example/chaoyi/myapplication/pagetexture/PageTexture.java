@@ -30,7 +30,7 @@ public class PageTexture {
     private float width;
     private float height;
 
-    private float R = .5f;
+    private float R = .8f;
 
     private float centralPointX = 0f, centralPointY = 0f, centralPointZ = 0f; //纸张的中心点坐标
 
@@ -45,7 +45,7 @@ public class PageTexture {
     private int texture;
 
     private float perDegrees;  //曲面被切割的每一小份的角度
-    private int vertexNum; //曲面切割的点个数
+    private int partNum; //曲面切割的份数
 
     private Context context;
 
@@ -54,7 +54,7 @@ public class PageTexture {
         this.height = height;
         this.context = context;
         this.perDegrees = perDegrees;
-        this.vertexNum = (int) (180 / perDegrees) + 1;
+        this.partNum = (int) (180 / perDegrees);
 
         this.calculateVertex();
         this.loadTexture(gl);
@@ -74,6 +74,8 @@ public class PageTexture {
      */
     private void calculateTextureVertex(float thumbX, float thumbY) {
         float Ax = thumbX, Ay = thumbY;
+        float Ox = width / 2f, Oy = height / 2f;
+        float Px = -width / 2f, Py = -height / 2f;
         float Fx = width / 2f, Fy = -height / 2f;
         float Gx = (Ax + Fx) / 2f, Gy = (Ay + Fy) / 2f;
         float Mx = Gx, My = Fy;
@@ -89,10 +91,22 @@ public class PageTexture {
         float FG = (float) Math.abs(Math.sqrt(Math.pow(Fx - Gx, 2) + Math.pow(Fy - Gy, 2)));
         float CF = FN * EF / FG;
         float Cx = Fx - CF, Cy = Fy;
+
+        /**
+         * C点坐标有可能越界
+         */
+        if (Cx < Px) {
+            Cx = Px;
+        }
+
         float FJ = FH * CF / EF;
         float Jx = Fx, Jy = Fy + FJ;
-        float Ox = width / 2f, Oy = height / 2f;
-        float Px = -width / 2f, Py = -height / 2f;
+        /**
+         * J点坐标有可能越界
+         */
+        if (Jy > Oy) {
+            Jy = Oy;
+        }
 
         /**
          * 直线公式 y = kx + b
@@ -127,7 +141,7 @@ public class PageTexture {
         float PC = (float) Math.abs(Math.sqrt(Math.pow(Px - Cx, 2) + Math.pow(Py - Cy, 2)));
 
 
-        int totalNum = 5 + this.vertexNum * 2 + 1; // 总点数
+        int totalNum = 5 + this.partNum * 2 + 1; // 总点数
         int size = totalNum * 2;
         float[] vertexs = new float[size];
 
@@ -151,16 +165,16 @@ public class PageTexture {
         vertexs[9] = 1;
 
         /**
-         *  曲面被分割成 vertexNum - 1 份
+         *  曲面被分割成 partNum 份
          */
         int start = 10;
         float len1 = this.height - AK - OJ; //上弧线的长度
         float len2 = this.width - AB - PC; //下弧线的长度
-        for (int i = 0; i < vertexNum; i++) {
+        for (int i = 0; i < partNum; i++) {
             vertexs[start + i * 4] = 1;
-            vertexs[start + i * 4 + 1] = ((len1 / (vertexNum - 1)) * i + OJ) / height;
+            vertexs[start + i * 4 + 1] = ((len1 / partNum) * i + OJ) / height;
 
-            vertexs[start + i * 4 + 2] = ((len2 / (vertexNum - 1)) * i + PC) / width;
+            vertexs[start + i * 4 + 2] = ((len2 / partNum) * i + PC) / width;
             vertexs[start + i * 4 + 3] = 1;
         }
 
@@ -185,6 +199,8 @@ public class PageTexture {
     private void calculatePageVertex(float thumbX, float thumbY) {
 
         float Ax = thumbX, Ay = thumbY;
+        float Ox = width / 2f, Oy = height / 2f;
+        float Px = -width / 2f, Py = -height / 2f;
         float Fx = width / 2f, Fy = -height / 2f;
         float Gx = (Ax + Fx) / 2f, Gy = (Ay + Fy) / 2f;
         float Mx = Gx, My = Fy;
@@ -200,8 +216,21 @@ public class PageTexture {
         float FG = (float) Math.abs(Math.sqrt(Math.pow(Fx - Gx, 2) + Math.pow(Fy - Gy, 2)));
         float CF = FN * EF / FG;
         float Cx = Fx - CF, Cy = Fy;
+        /**
+         * C点坐标有可能越界
+         */
+        if (Cx < Px) {
+            Cx = Px;
+        }
+
         float FJ = FH * CF / EF;
         float Jx = Fx, Jy = Fy + FJ;
+        /**
+         * J点坐标有可能越界
+         */
+        if (Jy > Oy) {
+            Jy = Oy;
+        }
 
         /**
          * 直线公式 y = kx + b
@@ -257,7 +286,7 @@ public class PageTexture {
 
         Path path1 = getBezierPath(Jx, Jy, Hx, Hy, Kx, Ky);
         Path path2 = getBezierPath(Cx, Cy, Ex, Ey, Bx, By);
-        arrayList.addAll(getCurvedVertex(path1, path2, vertexNum));
+        arrayList.addAll(getCurvedVertex(path1, path2, this.partNum));
 
         /**
          *  最后加上（thumbX， thumbY）点
@@ -283,12 +312,12 @@ public class PageTexture {
     /**
      * 获取曲面顶点集合
      *
-     * @param path1     上曲线
-     * @param path2     下曲线
-     * @param vertexNum 曲线被分割的点数
+     * @param path1   上曲线
+     * @param path2   下曲线
+     * @param partNum 曲线被分割的份数
      * @return
      */
-    private ArrayList<Float> getCurvedVertex(Path path1, Path path2, float vertexNum) {
+    private ArrayList<Float> getCurvedVertex(Path path1, Path path2, float partNum) {
 
         PathMeasure pathMeasure1 = new PathMeasure(path1, false);
         float len1 = pathMeasure1.getLength();
@@ -297,12 +326,13 @@ public class PageTexture {
         float len2 = pathMeasure2.getLength();
 
         ArrayList<Float> arrayList = new ArrayList<>();
-        for (int i = 0; i < vertexNum; i++) {
+
+        for (int i = 0; i < partNum; i++) {
             // patch1 上的点
             float[] pos = new float[2];
             float[] tan = new float[2];
 
-            float distance = len1 / (vertexNum - 1) * i;
+            float distance = len1 / partNum * i;
             pathMeasure1.getPosTan(distance, pos, tan);
 
             /**
@@ -319,7 +349,7 @@ public class PageTexture {
             pos = new float[2];
             tan = new float[2];
 
-            distance = len2 / (vertexNum - 1) * i;
+            distance = len2 / partNum * i;
             pathMeasure2.getPosTan(distance, pos, tan);
 
             /**
@@ -352,7 +382,7 @@ public class PageTexture {
 
         // 执行纹理贴图
         gl.glBindTexture(GL10.GL_TEXTURE_2D, texture);
-        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 5 + (this.vertexNum * 2) + 1);
+        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 5 + (this.partNum * 2) + 1);
 
         gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
