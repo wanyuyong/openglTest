@@ -34,7 +34,7 @@ public class CylinderRender implements GLSurfaceView.Renderer {
         // 启用2D纹理贴图
         gl.glEnable(GL10.GL_TEXTURE_2D);
 
-        cylinder = new Cylinder(4, 8, 2, gl, this.context);
+        cylinder = new Cylinder(4, 8, 36, gl, this.context);
     }
 
     @Override

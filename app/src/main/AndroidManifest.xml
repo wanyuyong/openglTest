@@ -17,8 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".cylinder.CylinderActivity" />
-        <activity android:name=".page.PageActivity"></activity>
-        <activity android:name=".pagetexture.PageTextureActivity"></activity>
+        <activity android:name=".page.PageActivity" />
+        <activity android:name=".pagetexture.PageTextureActivity" />
+        <activity android:name=".book.BookActivity" />
     </application>
 
 </manifest>

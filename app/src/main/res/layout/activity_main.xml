@@ -8,6 +8,14 @@
     tools:context="com.example.chaoyi.myapplication.MainActivity">
 
     <TextView
+        android:id="@+id/book_btn"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="2D翻页"
+        android:gravity="center"
+        />
+
+    <TextView
         android:id="@+id/cylinder_btn"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -19,7 +27,7 @@
         android:id="@+id/page_btn_1"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="翻页1"
+        android:text="3D翻页1"
         android:gravity="center"
         />
 
@@ -27,7 +35,7 @@
         android:id="@+id/page_btn_2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="翻页2"
+        android:text="3D翻页2"
         android:gravity="center"
         />
 

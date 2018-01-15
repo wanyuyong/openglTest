@@ -21,7 +21,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class Cylinder {
     private Context context;
 
-    private boolean onlyDrawLine = false; //只画线
+    private boolean onlyDrawLine = true; //只画线
 
     private FloatBuffer vertexBufferPillar; //柱面顶点
     private FloatBuffer vertexBufferTexture; //纹理顶点
