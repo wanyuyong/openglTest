@@ -62,13 +62,14 @@ public class BookView extends View {
     private Bitmap bitmap;
     private Path pathA, pathB, pathB1, pathB2;
 
-    private void init(){
+    private void init() {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(width, height);
         setLayoutParams(layoutParams);
 
         bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.mipmap.img);
         paint = new Paint();
-        paint.setColor(Color.argb(50,255,100,100));
+        paint.setStrokeWidth(1);
+        paint.setColor(Color.argb(50, 255, 100, 100));
     }
 
     public BookView(Context context, int width, int height) {
@@ -76,7 +77,7 @@ public class BookView extends View {
         this.width = width;
         this.height = height;
         init();
-        this.calculateVertex(width/3 * 2, height/3 * 2);
+        this.calculateVertex(width / 2, height / 2);
     }
 
     @Override
@@ -90,42 +91,47 @@ public class BookView extends View {
     /**
      * 绘制B区域
      */
-    private void drawB(Canvas canvas){
-       canvas.save();
-       canvas.clipPath(pathB);
-       canvas.clipPath(pathB1, Region.Op.INTERSECT);
-       canvas.drawColor(Color.GRAY);
-       canvas.restore();
+    private void drawB(Canvas canvas) {
+        canvas.save();
+        canvas.clipPath(pathB);
+        canvas.clipPath(pathB1, Region.Op.INTERSECT);
+        canvas.drawColor(Color.BLACK);
+        canvas.restore();
     }
 
     /**
      * 绘制A区域
      */
-    private void drawA(Canvas canvas){
+    private void drawA(Canvas canvas) {
         canvas.save();
         canvas.clipPath(pathA, Region.Op.INTERSECT);
-        canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), new Rect(0,0, getWidth(), getHeight()), null);
+        canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), new Rect(0, 0, getWidth(), getHeight()), null);
         canvas.restore();
     }
 
     /**
      * 绘制C区域
      */
-    private void drawC(Canvas canvas){
+    private void drawC(Canvas canvas) {
 
         canvas.save();
         canvas.clipPath(pathB);
         canvas.clipPath(pathB2, Region.Op.INTERSECT);
 
-        canvas.drawColor(Color.RED);
+        canvas.drawColor(Color.WHITE);
 
         canvas.translate(Ax, Ay);
         canvas.scale(1, -1);
-        canvas.rotate(62);
+        float degrees = (float) (180 - Math.atan(EF / FH) * 180 / Math.PI * 2);
+        canvas.rotate(degrees);
         canvas.translate(-width, -height);
 
-        canvas.drawBitmap(bitmap, new Rect(0,0, bitmap.getWidth(), bitmap.getHeight()), new Rect(0,0, width, height), null);
+        canvas.drawBitmap(bitmap, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), new Rect(0, 0, width, height), null);
 
+        /**
+         * 蒙层
+         */
+        canvas.drawColor(Color.parseColor("#30000000"));
         canvas.restore();
     }
 
@@ -228,13 +234,13 @@ public class BookView extends View {
          * D点为 CB的中点 与 E 的中点
          */
         Dx = (Cx + 2 * Ex + Bx) / 4;
-        Dy = (Cy + 2* Ey + By) / 4;
+        Dy = (Cy + 2 * Ey + By) / 4;
 
         /**
          * I点为 KJ的中点 与 H 的中点
          */
         Ix = (Jx + 2 * Hx + Kx) / 4;
-        Iy = (Jy + 2* Hy + Ky) / 4;
+        Iy = (Jy + 2 * Hy + Ky) / 4;
 
         AB = (float) Math.abs(Math.sqrt(Math.pow(Ax - Bx, 2) + Math.pow(Ay - By, 2)));
         AK = (float) Math.abs(Math.sqrt(Math.pow(Ax - Kx, 2) + Math.pow(Ay - Ky, 2)));
