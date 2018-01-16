@@ -212,6 +212,9 @@ public class Page {
 
             /**
              * 根据弧面半径和弧度计算去z坐标值
+             *
+             * 角度转弧度 ：弧度  = 角度 * π / 180
+             *
              */
             float sin = (float) Math.sin(perDegrees * i / 2 * Math.PI / 180);
             float z = sin * 2 * R * sin;

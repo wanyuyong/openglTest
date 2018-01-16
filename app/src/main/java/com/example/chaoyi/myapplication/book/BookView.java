@@ -120,7 +120,7 @@ public class BookView extends View {
 
         canvas.drawColor(Color.WHITE);
 
-        canvas.translate(Ax, Ay);
+        canvas.translate(Ax, Ay); // 相当于把原点移动到A
         canvas.scale(1, -1);
         float degrees = (float) (180 - Math.atan(EF / FH) * 180 / Math.PI * 2);
         canvas.rotate(degrees);

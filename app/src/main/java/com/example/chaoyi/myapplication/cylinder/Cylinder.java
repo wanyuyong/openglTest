@@ -102,6 +102,10 @@ public class Cylinder {
         ArrayList<Float> vertexArray = new ArrayList<Float>(); //顶点存放列表
 
         for (float degrees = 0; degrees <= 360; degrees += perDegrees) {
+            /**
+             * 角度转弧度
+             * 弧度  = 角度 * π / 180
+             */
             vertexArray.add((float) (x + R * Math.cos(degrees * Math.PI / 180)));
             vertexArray.add(y + height / 2);
             vertexArray.add((float) (z + R * Math.sin(degrees * Math.PI / 180)));
