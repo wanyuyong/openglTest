@@ -1,6 +1,5 @@
 package com.example.chaoyi.myapplication.book;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,9 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Region;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -122,6 +119,10 @@ public class BookView extends View {
 
         canvas.translate(Ax, Ay); // 相当于把原点移动到A
         canvas.scale(1, -1);
+        /**
+         * 反三角函数算出来的结果是弧度
+         * 角度 = 弧度 * 180 / π
+         */
         float degrees = (float) (180 - Math.atan(EF / FH) * 180 / Math.PI * 2);
         canvas.rotate(degrees);
         canvas.translate(-width, -height);

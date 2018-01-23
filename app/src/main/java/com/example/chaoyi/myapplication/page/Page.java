@@ -3,12 +3,9 @@ package com.example.chaoyi.myapplication.page;
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
-import android.util.Log;
 
 import com.example.chaoyi.myapplication.utility.Util;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
