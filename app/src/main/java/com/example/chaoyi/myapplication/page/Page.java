@@ -203,7 +203,7 @@ public class Page {
         for (int i = 0; i < vertexNum; i++) {
             float[] pos = new float[2];
             float[] tan = new float[2];
-
+            //计算曲线上某个点的 x , y 坐标
             float distance = len / (vertexNum - 1) * i;
             pathMeasure.getPosTan(distance, pos, tan);
 
