@@ -81,14 +81,14 @@ public class BookView extends View {
     public void draw(Canvas canvas) {
         super.draw(canvas);
         drawA(canvas);
-        drawB(canvas);
-        drawC(canvas);
+        drawB1(canvas);
+        drawB2(canvas);
     }
 
     /**
-     * 绘制B区域
+     * 绘制B1区域(黑背景)
      */
-    private void drawB(Canvas canvas) {
+    private void drawB1(Canvas canvas) {
         canvas.save();
         canvas.clipPath(pathB);
         canvas.clipPath(pathB1, Region.Op.INTERSECT);
@@ -107,9 +107,9 @@ public class BookView extends View {
     }
 
     /**
-     * 绘制C区域
+     * 绘制B2区域（折角）
      */
-    private void drawC(Canvas canvas) {
+    private void drawB2(Canvas canvas) {
 
         canvas.save();
         canvas.clipPath(pathB);
@@ -157,12 +157,18 @@ public class BookView extends View {
         Fx = width;
         Fy = height;
 
+        /**
+         * 中点计算公式 x = (x1 + x2) / 2 ; y = (y1 + y2) / 2
+         */
         Gx = (Ax + Fx) / 2f;
         Gy = (Ay + Fy) / 2f;
 
         Mx = Gx;
         My = Fy;
 
+        /**
+         * 两点的距离公式 √(X1-X2)²+(Y1-Y2)²
+         */
         GM = (float) Math.abs(Math.sqrt(Math.pow(Gx - Mx, 2) + Math.pow(Gy - My, 2)));
         FM = (float) Math.abs(Math.sqrt(Math.pow(Fx - Mx, 2) + Math.pow(Fy - My, 2)));
         EM = GM * GM / FM;
@@ -176,6 +182,9 @@ public class BookView extends View {
         Hx = Fx;
         Hy = Fy - FH;
 
+        /**
+         * N为AG的中点
+         */
         Nx = (Ax + Gx) / 2f;
         Ny = (Ay + Gy) / 2f;
 
